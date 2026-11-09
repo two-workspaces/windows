@@ -2,8 +2,8 @@
 # Railway gate in front of dockur/windows.
 #
 # Windows needs RAM_SIZE plus ~1 GB for QEMU, and ~30 GB of volume to download the
-# installer and install. Free (0.5 GB RAM, 0.5 GB volume), Trial (1 GB) and a
-# fresh Hobby volume (5 GB) don't have that, and starting anyway ends in an OOM
+# installer and install. Free (0.5 GB RAM, 0.5 GB volume), Trial (1 GB) and Hobby
+# (volumes capped at 5 GB, checked 2026-11-09) don't have that; Pro volumes start at 50 GB, and starting anyway ends in an OOM
 # kill or a failed install, which Railway counts as a failed deploy. So when the
 # service is too small this serves a page that says what to change, keeps
 # /healthcheck green, and starts Windows by itself once the volume is resized
@@ -57,7 +57,7 @@ HTML
   if disk_ok; then
     echo "<li class=ok>Volume: big enough.</li>"
   else
-    echo "<li class=no>Volume: $(gb "${size:-0}"), and the first install needs ${NEED_DISK_GB} GB. Resize the volume on <code>/storage</code> (click it on the canvas, then <b>Settings</b>). Railway resizes it live, and this page starts Windows by itself.</li>"
+    echo "<li class=no>Volume: $(gb "${size:-0}"), and the first install needs ${NEED_DISK_GB} GB. Hobby volumes can't grow past 5 GB, so Windows needs a Pro plan, where volumes start at 50 GB. On Pro, resize the volume on <code>/storage</code> (click it on the canvas, then <b>Settings</b>). Railway resizes it live, and this page starts Windows by itself.</li>"
   fi
   cat <<HTML
 </ul><p>This page refreshes every 30 seconds.</p></body></html>

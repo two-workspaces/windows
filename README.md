@@ -2,7 +2,7 @@
 
 [![Deploy on Railway](https://railway.com/button.svg)](https://railway.com/deploy/windows?referralCode=sLjDXb&utm_medium=integration&utm_source=button&utm_campaign=windows)
 
-This template runs a Windows desktop on Railway and streams it to your browser. By default it's Windows Server 2022 with the Desktop Experience. On first boot it downloads the installer from Microsoft and installs Windows unattended. After that you log in from any device and get a normal Windows desktop with Edge, PowerShell and everything you install, kept on a volume.
+This template runs a Windows desktop on Railway and streams it to your browser. It needs a Railway Pro plan (see below). By default it's Windows Server 2022 with the Desktop Experience. On first boot it downloads the installer from Microsoft and installs Windows unattended. After that you log in from any device and get a normal Windows desktop with Edge, PowerShell and everything you install, kept on a volume.
 
 ## About Hosting Windows
 
@@ -28,10 +28,10 @@ The browser desktop and Remote Desktop are both protected by the Windows account
 
 ### Implementation Details
 
-**It needs a paid plan and a bigger volume.** Windows uses `RAM_SIZE` (4 GB by default) plus about 1 GB for the emulator. The first install also needs about 30 GB of disk, and Railway volumes start at 5 GB on Hobby. The template checks both when it starts:
+**It needs a Pro plan.** Windows uses `RAM_SIZE` (4 GB by default) plus about 1 GB for the emulator, and the first install needs about 30 GB of disk. Railway caps volumes at 5 GB on Hobby, while Pro volumes start at 50 GB. The template checks both when it starts:
 
-- If the memory limit is too low, it shows a page saying what to change instead of starting Windows. That covers Free and Trial plans, and Hobby services with a lowered limit. Raise the limit in the service's *Settings → Resource limits* and redeploy.
-- If only the volume is too small, the same page asks you to resize it. Click the volume on the canvas and open *Settings*. Railway resizes volumes live, so Windows starts by itself once there's room, with no redeploy.
+- If the memory limit or the volume is too small, it shows a page saying what's missing instead of starting Windows. So a deploy on Free, Trial or Hobby doesn't crash; it just explains why Windows can't run there.
+- On Pro, if the volume was made smaller than 30 GB, resize it: click the volume on the canvas and open *Settings*. Railway resizes volumes live, and Windows starts by itself once there's room.
 
 **First boot takes a while.** Open your Railway domain and log in with `USERNAME` and `PASSWORD` from the Variables tab. The page shows the download, then the installer running. Under emulation the full install usually takes 30–60 minutes, after which the desktop appears. Later boots go straight to the desktop.
 
