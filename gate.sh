@@ -154,10 +154,24 @@ rdp_up() {
   [ "$b" = "03" ]
 }
 
-mark_installed() {
+PTY=/run/shm/qemu.pty   # the firmware's console, kept by upstream
+
+# watch_install PID: runs beside Windows (entry.sh, PID) until the install is marked.
+watch_install() {
   local ok=0
   while [ ! -f "$STORAGE/windows.boot" ]; do
     sleep 30
+    # The installer DVD only boots if a key press lands on its "Press any key"
+    # prompt, and upstream times that blind. When it misses, or setup resets
+    # early, the firmware stops at "No bootable option" for good (1 install in
+    # 5 on 2026-11-14). Stop Windows so the loop below starts the install again.
+    if tail -c 400 "$PTY" 2>/dev/null | grep -aq "No bootable option or device was found"; then
+      echo "[windows] The installer didn't boot (the firmware found nothing to start). Starting it again."
+      kill -TERM "$1" 2>/dev/null
+      return
+    fi
+    # Remote Desktop can't answer before Windows first boots from its disk.
+    grep -aq '"Windows Boot Manager" from' "$PTY" 2>/dev/null || continue
     if rdp_up; then ok=$((ok + 1)); else ok=0; fi
     if [ "$ok" -ge 20 ] && installed; then
       touch "$STORAGE/windows.boot" && echo "[windows] Windows is installed and answering; marked the install as finished."
@@ -191,7 +205,7 @@ while :; do
   started=$SECONDS
   /run/entry.sh &
   child=$!
-  mark_installed &
+  watch_install "$child" &
   marker=$!
   rc=0
   wait "$child" || rc=$?
