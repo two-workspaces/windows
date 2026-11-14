@@ -26,9 +26,10 @@ GIB=$((1024 ** 3))
 export RAM_CHECK=${RAM_CHECK:-N}
 
 ram=$(numfmt --from=iec "${RAM_SIZE:-4G}" 2>/dev/null || echo $((4 * GIB)))
-# QEMU without KVM keeps up to 1 GiB of translated code besides the guest's RAM,
-# plus its own heap and the helpers around it.
-need_mem=$((ram + ${QEMU_OVERHEAD_MB:-1536} * 1024 * 1024))
+# QEMU without KVM keeps up to 1 GiB of translated code besides the guest's RAM:
+# with a 4 GB guest it peaked at 5458 MiB during install (2026-11-14). 2 GiB
+# covers that and the helpers around it.
+need_mem=$((ram + ${QEMU_OVERHEAD_MB:-2048} * 1024 * 1024))
 limit=$(cat /sys/fs/cgroup/memory.max 2>/dev/null || cat /sys/fs/cgroup/memory/memory.limit_in_bytes 2>/dev/null || echo max)
 [[ "$limit" =~ ^[0-9]+$ ]] || limit=$((1 << 62))
 
@@ -106,7 +107,7 @@ too_small_page() {
   if mem_ok; then
     items="<li class=ok>Memory: $(gb_down "$limit") available, $(gb_up "$need_mem") needed.</li>"
   else
-    items="<li class=no>Memory: this service is limited to $(gb_down "$limit"), and Windows needs $(gb_up "$need_mem") (<code>RAM_SIZE</code> plus 1.5 GB for the emulator). Free and Trial plans can't run it. On Hobby or Pro, raise the memory limit in the service's <b>Settings &rarr; Resource limits</b>.</li>"
+    items="<li class=no>Memory: this service is limited to $(gb_down "$limit"), and Windows needs $(gb_up "$need_mem") (<code>RAM_SIZE</code> plus 2 GB for the emulator). Free and Trial plans can't run it. On Hobby or Pro, raise the memory limit in the service's <b>Settings &rarr; Resource limits</b>.</li>"
   fi
   if disk_ok; then
     items+="<li class=ok>Volume: big enough.</li>"
