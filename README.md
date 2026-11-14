@@ -33,9 +33,9 @@ The browser desktop and Remote Desktop are both protected by the Windows account
 - If the memory limit or the volume is too small, it shows a page saying what's missing instead of starting Windows. So a deploy on Free, Trial or Hobby doesn't crash; it just explains why Windows can't run there.
 - On Pro, if the volume was made smaller than 30 GB, resize it: click the volume on the canvas and open *Settings*. Railway resizes volumes live, and Windows starts by itself once there's room.
 
-**First boot takes a while.** Open your Railway domain and log in with `USERNAME` and `PASSWORD` from the Variables tab. The page shows the download, then the installer running. Under emulation the full install usually takes 30–60 minutes, after which the desktop appears. Later boots go straight to the desktop.
+**First boot takes a while.** Open your Railway domain and log in with `USERNAME` and `PASSWORD` from the Variables tab. The page shows the download, then the installer running. Under emulation the full install took 28 minutes in our test and can take up to an hour, after which the desktop appears. Don't redeploy or restart the service meanwhile: an interrupted install starts over. Later boots go straight to the desktop.
 
-**Remote Desktop:** the template adds a TCP proxy for port 3389. Find its address under *Settings → Networking*, then connect any RDP client to `<domain>.proxy.rlwy.net:<port>` with the same login. RDP feels faster than the browser viewer.
+**Remote Desktop:** the template adds a TCP proxy for port 3389. Find its address under *Settings → Networking*, then connect any RDP client to `<domain>.proxy.rlwy.net:<port>` with the same login. RDP feels faster than the browser viewer. While a Remote Desktop session is signed in, the browser view shows the lock screen.
 
 **Choosing a version:** set `VERSION` before the first boot. Options are `2022` (default), `2025`, `2019`, `11`, `10`, `11l` and `10l` (the LTSC editions). Changing it later doesn't reinstall; delete the files on the volume first if you want a fresh install.
 
