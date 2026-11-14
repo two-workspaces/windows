@@ -43,7 +43,7 @@ The browser desktop and Remote Desktop are both protected by the Windows account
 
 **Cost:** an always-on service with about 6 GB of memory and a few busy vCPUs costs noticeably more than a typical web app. Check usage in the first days, and shut Windows down from the Start menu when you don't need it.
 
-**Shutting down:** when you shut Windows down from the Start menu, the emulated PC turns off and the service stays up on a small page that says so, using almost no CPU or memory. Your disk stays on the volume. To boot Windows again, restart the deployment (*Deployments*, then *Restart* in the active deployment's menu). Before you restart or redeploy the service yourself, shut Windows down from the Start menu first: Railway's *Restart* stops the container within seconds, which for Windows is like pulling the plug.
+**Shutting down:** when you shut Windows down from the Start menu, the emulated PC turns off and the service stays up on a small page that says so, using almost no CPU or memory. Your disk stays on the volume. To boot Windows again, restart the deployment (*Deployments*, then *Restart* in the active deployment's menu). A redeploy gives Windows up to two minutes to shut down cleanly. Railway's *Restart* doesn't: it stops the container within seconds, which for Windows is like pulling the plug, so shut Windows down from the Start menu before you use it.
 
 **Disk size:** the Windows disk is sized to the volume, leaving room for the installer: about 38 GB on a 50 GB volume, and 64 GB at most. It only takes up what Windows has written. For a bigger disk, resize the volume, set `DISK_SIZE` (for example `120G`), restart, and extend the C: partition in Disk Management.
 
