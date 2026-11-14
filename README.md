@@ -28,7 +28,7 @@ The browser desktop and Remote Desktop are both protected by the Windows account
 
 ### Implementation Details
 
-**It needs a Pro plan.** Windows uses `RAM_SIZE` (4 GB by default) plus about 1 GB for the emulator, and the first install needs about 30 GB of disk. Railway caps volumes at 5 GB on Hobby, while Pro volumes start at 50 GB. The template checks both when it starts:
+**It needs a Pro plan.** Windows uses `RAM_SIZE` (4 GB by default) plus about 1.5 GB for the emulator, and the first install needs about 30 GB of disk. Railway caps volumes at 5 GB on Hobby, while Pro volumes start at 50 GB. The template checks both when it starts:
 
 - If the memory limit or the volume is too small, it shows a page saying what's missing instead of starting Windows. So a deploy on Free, Trial or Hobby doesn't crash; it just explains why Windows can't run there.
 - On Pro, if the volume was made smaller than 30 GB, resize it: click the volume on the canvas and open *Settings*. Railway resizes volumes live, and Windows starts by itself once there's room.
@@ -41,7 +41,11 @@ The browser desktop and Remote Desktop are both protected by the Windows account
 
 **Licensing:** Windows is downloaded from Microsoft as an evaluation edition. Server editions run for 180 days and Enterprise editions for 90 days, unless you activate them with your own license key. You're responsible for licensing the copy you run.
 
-**Cost:** an always-on service with 5 GB of memory and a few busy vCPUs costs noticeably more than a typical web app. Check usage in the first days, and shut Windows down from the Start menu when you don't need it.
+**Cost:** an always-on service with 5 to 6 GB of memory and a few busy vCPUs costs noticeably more than a typical web app. Check usage in the first days, and shut Windows down from the Start menu when you don't need it.
+
+**Shutting down:** when you shut Windows down from the Start menu, the emulated PC turns off and the service stays up on a small page that says so, using almost no CPU or memory. Your disk stays on the volume. To boot Windows again, restart the deployment (*Deployments*, then *Restart* in the active deployment's menu). Railway gives Windows two minutes to shut down cleanly before a redeploy or restart; save your work first, as with any PC.
+
+**Disk size:** the Windows disk is sized to the volume, leaving room for the installer: about 38 GB on a 50 GB volume, and 64 GB at most. It only takes up what Windows has written. For a bigger disk, resize the volume, set `DISK_SIZE` (for example `120G`), restart, and extend the C: partition in Disk Management.
 
 **Limits:**
 

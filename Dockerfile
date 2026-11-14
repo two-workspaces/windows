@@ -4,14 +4,14 @@ FROM dockurr/windows:6.06
 
 # KVM=N: Railway has no /dev/kvm, so QEMU emulates the CPU (TCG).
 # PROTECT=Y: dockur's web viewer asks for USERNAME/PASSWORD, the same login as
-# the Windows account. ALLOCATE=N: the 64 GB disk grows as Windows writes.
+# the Windows account. ALLOCATE=N: the disk grows as Windows writes. DISK_SIZE is
+# left unset on purpose: gate.sh sizes the disk to the volume.
 ENV VERSION=2022 \
     KVM=N \
     PROTECT=Y \
     USERNAME=admin \
     RAM_SIZE=4G \
     CPU_CORES=4 \
-    DISK_SIZE=64G \
     ALLOCATE=N
 
 # Railway's healthcheck at /healthcheck, without the login. dockur turns every
