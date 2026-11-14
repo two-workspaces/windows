@@ -140,6 +140,42 @@ if [ -z "${DISK_SIZE:-}" ]; then
   export DISK_SIZE="${auto}G"
 fi
 
+# Upstream marks an install as finished ($STORAGE/windows.boot) only at the first
+# clean shutdown, and without the mark the next start throws the disk away and
+# installs again. Railway's Restart kills the container about 10 s after SIGTERM
+# whatever the draining time (2026-11-14), far too short for Windows to shut
+# down, so a Windows that was never shut down from inside would be reinstalled
+# over. Write the mark here instead, once Remote Desktop has answered for ten
+# minutes: by then setup is long over.
+rdp_up() {
+  local b
+  b=$(printf '\x03\x00\x00\x13\x0e\xe0\x00\x00\x00\x00\x00\x01\x00\x08\x00\x03\x00\x00\x00' \
+    | timeout 8 nc -w 5 127.0.0.1 3389 2>/dev/null | head -c 1 | od -An -tx1 | tr -d ' ')
+  [ "$b" = "03" ]
+}
+
+mark_installed() {
+  local ok=0
+  while [ ! -f "$STORAGE/windows.boot" ]; do
+    sleep 30
+    if rdp_up; then ok=$((ok + 1)); else ok=0; fi
+    if [ "$ok" -ge 20 ] && installed; then
+      touch "$STORAGE/windows.boot" && echo "[windows] Windows is installed and answering; marked the install as finished."
+    fi
+  done
+}
+
+# Upstream deletes the installer when it writes the mark itself. With the mark
+# written above it never would, so do it before the next boot.
+drop_installer() {
+  [ -f "$STORAGE/windows.boot" ] || return 0
+  [[ "${REMOVE:-}" == [Nn0]* ]] && return 0
+  local base
+  base=$(cat "$STORAGE/windows.base" 2>/dev/null)
+  case "${base,,}" in *.iso) [[ "$base" != */* ]] && rm -f "$STORAGE/$base" ;; esac
+  rm -f "$STORAGE/setup.img"
+}
+
 # Run Windows as a child, so its exit can be told apart: Railway stopping the
 # service (pass the signal on, leave), a shutdown from inside Windows (stay up on
 # a page), or QEMU dying (restart it here).
@@ -151,14 +187,18 @@ trap on_term TERM INT
 fails=0
 while :; do
   unpage
+  drop_installer
   started=$SECONDS
   /run/entry.sh &
   child=$!
+  mark_installed &
+  marker=$!
   rc=0
   wait "$child" || rc=$?
   # A trapped signal ends `wait` early; keep waiting for upstream's ACPI shutdown.
   while kill -0 "$child" 2>/dev/null; do rc=0; wait "$child" || rc=$?; done
   child=
+  kill "$marker" 2>/dev/null
   [ -n "$stopping" ] && exit "$rc"
 
   if [ "$rc" -eq 0 ]; then
